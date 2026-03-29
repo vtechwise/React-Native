@@ -1,4 +1,3 @@
-import { View, Text } from "react-native";
 import React, {
   createContext,
   ReactNode,
@@ -7,7 +6,7 @@ import React, {
   useState,
 } from "react";
 
-import AysncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export interface ColorScheme {
   bg: string;
   surface: string;
@@ -104,14 +103,37 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    AysncStorage.getItem("darkmode").then((value) => {
-      if (value) setIsDarkMode(JSON.parse(value));
-    });
+    let isMounted = true;
+
+    const loadSavedThemePreference = async () => {
+      try {
+        const value = await AsyncStorage.getItem("darkmode");
+        if (value !== null && isMounted) {
+          setIsDarkMode(JSON.parse(value));
+        }
+      } catch (error) {
+        console.warn(
+          "Unable to read theme preference from AsyncStorage",
+          error,
+        );
+      }
+    };
+
+    loadSavedThemePreference();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const toggleDarkMode = () => {
+  const toggleDarkMode = async () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
+    try {
+      await AsyncStorage.setItem("darkmode", JSON.stringify(newMode));
+    } catch (error) {
+      console.warn("Unable to persist theme preference to AsyncStorage", error);
+    }
   };
 
   return (
