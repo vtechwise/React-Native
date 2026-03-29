@@ -50,8 +50,7 @@ export const updateTodo = mutation({
 });
 
 export const clearAllTodos = mutation({
-  args: { id: v.id("todos") },
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     const todos = await ctx.db.query("todos").collect();
 
     for (const todo of todos) {
