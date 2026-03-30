@@ -27,6 +27,7 @@ export default function Index() {
   const todos = useQuery(api.todos.getTodos);
 
   const toggleTodo = useMutation(api.todos.toggleTodo);
+  const deleteTodo = useMutation(api.todos.deleteTodo);
 
   const handleToggleTodo = async (id: Id<"todos">) => {
     try {
@@ -35,6 +36,17 @@ export default function Index() {
       console.log("error trying to toggle todo", error);
       Alert.alert("unable to toggle todo");
     }
+  };
+
+  const handleDeleteTodo = async (id: Id<"todos">) => {
+    Alert.alert("Delete Todo", "Are you sure you want to delete this todo?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => deleteTodo({ id }),
+      },
+    ]);
   };
 
   const isLoading = todos === undefined;
@@ -99,7 +111,10 @@ export default function Index() {
                   <Ionicons name="pencil" size={14} color={"white"} />
                 </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity activeOpacity={0.8}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => handleDeleteTodo(item._id)}
+              >
                 <LinearGradient
                   colors={colors.gradients.danger}
                   style={homeStyles.actionButton}
