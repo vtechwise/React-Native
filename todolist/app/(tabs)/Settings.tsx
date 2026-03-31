@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ProgressStat from "@/components/ProgressStat";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Preferences from "@/components/Preferences";
+import DangerZone from "@/components/DangerZone";
 
 const Settings = () => {
   const { colors, isDarkMode, toggleDarkMode } = useTheme();
@@ -40,6 +41,7 @@ const Settings = () => {
         >
           <ProgressStat />
           <Preferences />
+          <DangerZone />
         </ScrollView>
       </SafeAreaView>
     </LinearGradient>
