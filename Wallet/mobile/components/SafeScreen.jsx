@@ -4,7 +4,7 @@ import {
   UsesafeAreaInsets,
 } from "react-native-safe-area-context";
 import React from "react";
-import { COLORS } from "../constant/colors";
+import { COLORS } from "../constants/colors";
 
 const SafeScreen = ({ children }) => {
   const insets = useSafeAreaInsets();
