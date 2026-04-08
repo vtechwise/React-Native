@@ -1,6 +1,8 @@
 import express from "express";
 import dotEnv from "dotenv";
 import { sql } from "./config/db.js";
+import rateLlimiter from "./middlewares/rateLimiter.js";
+import transactionsRoute from "./routes/transactionsRoute.js";
 
 dotEnv.config();
 
@@ -10,6 +12,7 @@ const Port = process.env.PORT || 5001;
 
 // middlewar is a function that runs between the request and response
 app.use(express.json());
+app.use(rateLlimiter);
 
 async function initDB() {
   try {
@@ -28,57 +31,8 @@ async function initDB() {
   }
 }
 
-app.get("/api/transactions/:userId", async (req, res) => {
-  try {
-    const { userId } = req.params;
+app.use("/api/transactions", transactionsRoute);
 
-    return res.status(200).json(transactions);
-  } catch (error) {
-    console.log("error getting transactions", error);
-    res.status(500).json({ message: "internal server error" });
-  }
-});
-
-app.post("/api/transactions", async (req, res) => {
-  try {
-    const { title, user_id, amount, category } = req.body;
-    if (!title || !user_id || !category || amount === undefined) {
-      res.status(400).json({ message: "A;; fields are required" });
-    }
-
-    const transaction =
-      await sql`INSERT INTO transactions(user_id, title, amount, category)
-    VALUES (${user_id},${title},${amount},${category}) 
-    RETURNING *
-
-      `;
-
-    res.status(201).json({ message: "transactions created successfully " });
-  } catch (error) {
-    console.log("Error creating transactions", error);
-    res.status(500).json(transaction[0]);
-  }
-});
-
-app.delete("/api/transaction/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (isNaN(parseInt(id))) {
-      return res.status(400).json({ message: "invalid transaction ID" });
-    }
-    const transaction =
-      await sql`DELETE FROM transactions WHERE id=${id} RETURNING *`;
-    if (transaction.length === 0) {
-      return res.status(404).json({ message: "transaction not found" });
-    }
-    return res
-      .status(200)
-      .json({ message: "transaction deleted sucessfully " });
-  } catch (error) {
-    console.log("error deleting transaction", error);
-    res.status(500).json({ messgae: "internal server error" });
-  }
-});
 initDB().then(() => {
   app.listen(Port, () => {
     console.log("server is running on port 5001");
